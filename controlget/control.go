@@ -26,6 +26,7 @@ var kubeconfig string
 var masterURL string
 var apiGateway = "http://172.16.252.163:31112/function/"
 var servicesilices []string
+var endpointsilices []string
 
 func init() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
@@ -77,12 +78,18 @@ func Control(functionName string) (resp *http.Response, err error) {
 	}
 
 	//services, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
-	services, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
+	pods, err := kubeClient.CoreV1().Pods(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	servicesilices = append(servicesilices, services.Spec.ClusterIP)
+	endpointsilices = append(endpointsilices, pods.Status.PodIP)
+	// services, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// servicesilices = append(servicesilices, services.Spec.ClusterIP)
 	
 	// for _, s := range services.Items {
 	// 	if strings.Contains(s.Name, functionName) {
@@ -104,7 +111,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 	// 	}
 
 	// }
-	if len(servicesilices) == 0 {
+	if len(endpointsilices) == 0 {
 		resp, err := http.Get(apiGateway + functionName)
 		if err != nil {
 			fmt.Printf("err")
@@ -114,7 +121,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 		fmt.Printf("response is :%s", string(body))
 		return resp, err
 	} else {
-		urlStr := fmt.Sprintf("http://%s:%d", services.Spec.ClusterIP, watchdogPort)
+		urlStr := fmt.Sprintf("http://%s:%d", pods.Status.PodIP, watchdogPort)
 		resp, err := http.Get(urlStr)
 			//defer resp.Body.Close()
 		if err != nil {
