@@ -92,11 +92,11 @@ func control(functionName string) (resp *http.Response, err error) {
 	// }
 	if len(servicesilices) == 0 {
 		resp, err := http.Get(apiGateway + functionName)
-		defer resp.Body.Close()
 		if err != nil {
 			fmt.Printf("err")
 		}
 		body, err := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close()
 		fmt.Printf("response is :%s", string(body))
 		return resp, err
 	} else {
