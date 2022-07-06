@@ -34,7 +34,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 
 	//functionName := getServiceName(functionaddress)
 
-	fmt.Printf("function name is: %s \n", functionName)
+	log.Printf("function name is: %s \n", functionName)
 
 	// readConfig := config.ReadConfig{}
 	// osEnv := providertypes.OsEnv{}
@@ -52,7 +52,9 @@ func Control(functionName string) (resp *http.Response, err error) {
 	if home := homeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		//kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		flag.StringVar(kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+		log.Printf("kubeconfig do not exist")
 	}
 	flag.Parse()
 
