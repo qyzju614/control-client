@@ -49,7 +49,9 @@ func Control(functionName string) (resp *http.Response, err error) {
 	}
 
 	var kubeconfig string
+	var masterURL string
 	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 	// if home := homeDir(); home != "" {
 	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	// } else {
@@ -59,7 +61,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 	// }
 	flag.Parse()
 
-	clientCmdConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	clientCmdConfig, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
