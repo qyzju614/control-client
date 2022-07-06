@@ -22,14 +22,17 @@ import (
 const ( watchdogPort = 8080
 	namespace = "openfaas-fn"
 )
+var kubeconfig string
+var masterURL string
+var apiGateway = "http://172.16.252.163:31112/function/"
+var servicesilices []string
 
 func Control(functionName string) (resp *http.Response, err error) {
 
 	//functionaddress := "/function/test-4"
 
-	var apiGateway = "http://172.16.252.163:31112/function/"
 	//var endpointsilices []string
-	var servicesilices []string
+	
 	//var respslices []*http.Response
 
 	//functionName := getServiceName(functionaddress)
@@ -48,8 +51,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 		log.Fatalf("Error reading config: %s", err.Error())
 	}
 
-	var kubeconfig string
-	var masterURL string
+
 	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 	// if home := homeDir(); home != "" {
