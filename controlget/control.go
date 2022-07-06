@@ -114,20 +114,28 @@ func Control(functionName string) (resp *http.Response, err error) {
 		fmt.Printf("response is :%s", string(body))
 		return resp, err
 	} else {
-		for i := range servicesilices {
-			endpointIP := servicesilices[i]
-			urlStr := fmt.Sprintf("http://%s:%d", endpointIP, watchdogPort)
-			resp, err := http.Get(urlStr)
+		urlStr := fmt.Sprintf("http://%s:%d", services.Spec.ClusterIP, watchdogPort)
+		resp, err := http.Get(urlStr)
 			//defer resp.Body.Close()
-			if err != nil {
-				fmt.Printf(err.Error())
-			}
-			// body, err := ioutil.ReadAll(resp.Body)
-			// fmt.Printf("response is :%s \n", string(body))
-			//respslices = append(respslices, resp)
-			return resp, err
-			
+		if err != nil {
+			log.Fatalf("HTTP error: %s", err.Error())
 		}
+		return resp, err
+		// for i := range servicesilices {
+		// 	endpointIP := servicesilices[i]
+		// 	urlStr := fmt.Sprintf("http://%s:%d", endpointIP, watchdogPort)
+		// 	resp, err := http.Get(urlStr)
+		// 	//defer resp.Body.Close()
+		// 	if err != nil {
+		// 		//fmt.Printf(err.Error())
+		// 		log.Fatalf("HTTP error: %s", err.Error())
+		// 	}
+		// 	// body, err := ioutil.ReadAll(resp.Body)
+		// 	// fmt.Printf("response is :%s \n", string(body))
+		// 	//respslices = append(respslices, resp)
+		// 	return resp, err
+			
+		// }
 		
 
 	}
@@ -141,7 +149,6 @@ func Control(functionName string) (resp *http.Response, err error) {
 	// 		//body, err := ioutil.ReadAll(respc.Body)
 
 	// 	}
-	return resp, err
 }
 
 // func homeDir() string {
