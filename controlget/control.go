@@ -23,13 +23,14 @@ const ( watchdogPort = 8080
 	namespace = "openfaas-fn"
 )
 
-func control(functionName string) (resp *http.Response, err error) {
+func Control(functionName string) (resp *http.Response, err error) {
 
 	//functionaddress := "/function/test-4"
 
 	var apiGateway = "http://172.16.252.163:31112/function/"
 	//var endpointsilices []string
 	var servicesilices []string
+	//var respslices []*http.Response
 
 	//functionName := getServiceName(functionaddress)
 
@@ -110,8 +111,11 @@ func control(functionName string) (resp *http.Response, err error) {
 			}
 			// body, err := ioutil.ReadAll(resp.Body)
 			// fmt.Printf("response is :%s \n", string(body))
+			//respslices = append(respslices, resp)
 			return resp, err
+			
 		}
+		
 
 	}
 	// if len(endpointsilices) == 0 {
