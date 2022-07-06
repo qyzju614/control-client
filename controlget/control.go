@@ -7,7 +7,7 @@ import (
 	//"path/filepath"
 	"flag"
 	"io/ioutil"
-	"strings"
+	//"strings"
 	//"os"
 	"context"
 	 
@@ -76,18 +76,21 @@ func Control(functionName string) (resp *http.Response, err error) {
 		log.Fatalf("Error building Kubernetes clientset: %s", err.Error())
 	}
 
-	services, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
+	//services, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
+	services, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	for _, s := range services.Items {
-		if strings.Contains(s.Name, functionName) {
-			fmt.Printf("Name: %v Cluster IP: %v\n", s.Name, s.Spec.ClusterIP)
-			servicesilices = append(servicesilices, s.Spec.ClusterIP)
-		}
+	servicesilices = append(servicesilices, services.Spec.ClusterIP)
+	
+	// for _, s := range services.Items {
+	// 	if strings.Contains(s.Name, functionName) {
+	// 		fmt.Printf("Name: %v Cluster IP: %v\n", s.Name, s.Spec.ClusterIP)
+	// 		servicesilices = append(servicesilices, s.Spec.ClusterIP)
+	// 	}
 
-	}
+	// }
 	// pods, err := kubeClient.CoreV1().Pods(config.DefaultFunctionNamespace).List(context.TODO(), metav1.ListOptions{})
 	// if err != nil {
 	// 	fmt.Println(err)
