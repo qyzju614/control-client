@@ -27,10 +27,10 @@ var masterURL string
 var apiGateway = "http://172.16.252.163:31112/function/"
 var servicesilices []string
 
-// func init() {
-// 	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-// 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-// }
+func init() {
+	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
+}
 
 func Control(functionName string) (resp *http.Response, err error) {
 
@@ -51,11 +51,11 @@ func Control(functionName string) (resp *http.Response, err error) {
 	
 
 	// config.DefaultFunctionNamespace = namespace
-	var config string
-	var URL string
+	// var config string
+	// var URL string
 
-	flag.StringVar(&config, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-	flag.StringVar(&URL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
+	// flag.StringVar(&config, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+	// flag.StringVar(&URL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 	
 	// if home := homeDir(); home != "" {
 	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -65,9 +65,6 @@ func Control(functionName string) (resp *http.Response, err error) {
 	// 	log.Printf("kubeconfig do not exist")
 	// }
 	flag.Parse()
-
-	masterURL = URL
-	kubeconfig = config
 	
 	clientCmdConfig, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
