@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"fmt"
 	"log"
-	"path/filepath"
+	//"path/filepath"
 	"flag"
 	"io/ioutil"
 	"strings"
-	"os"
+	//"os"
 	"context"
 	 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,17 +48,18 @@ func Control(functionName string) (resp *http.Response, err error) {
 		log.Fatalf("Error reading config: %s", err.Error())
 	}
 
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		//kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-		flag.StringVar(kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-		log.Printf("kubeconfig do not exist")
-	}
+	var kubeconfig string
+	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+	// if home := homeDir(); home != "" {
+	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	// } else {
+	// 	//kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	// 	flag.StringVar(kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
+	// 	log.Printf("kubeconfig do not exist")
+	// }
 	flag.Parse()
 
-	clientCmdConfig, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	clientCmdConfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
@@ -133,9 +134,9 @@ func Control(functionName string) (resp *http.Response, err error) {
 	return resp, err
 }
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
-}
+// func homeDir() string {
+// 	if h := os.Getenv("HOME"); h != "" {
+// 		return h
+// 	}
+// 	return os.Getenv("USERPROFILE") // windows
+// }
