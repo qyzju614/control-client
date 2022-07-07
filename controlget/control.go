@@ -93,7 +93,7 @@ func Control(functionName string) (resp *http.Response, err error) {
 	}
 	endpoints, err := kubeClient.CoreV1().Endpoints(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
 	log.Printf("IP address %s", endpoints.Subsets[0].Addresses[0].IP)
-	urlstr := endpoints.Subsets[0].Addresses[0].IP
+	urlstr := fmt.Sprintf("http://%s:%d", endpoints.Subsets[0].Addresses[0].IP, watchdogPort)
 	// defaultResync := time.Minute * 5
 	// kubeInformerOpt := kubeinformers.WithNamespace(namespace)
 	// kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
