@@ -9,15 +9,15 @@ import (
 	//"io/ioutil"
 	//"strings"
 	//"os"
-	//"context"
-	"time"
+	"context"
+	//"time"
 	"net/url"
 	"strings"
 	"sync"
 	"math/rand"
 
 	 
-	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	kubeinformers "k8s.io/client-go/informers"
@@ -91,33 +91,37 @@ func Control(functionName string) (resp *http.Response, err error) {
 	if err != nil {
 		log.Fatalf("Error building Kubernetes clientset: %s", err.Error())
 	}
-	defaultResync := time.Minute * 5
-	kubeInformerOpt := kubeinformers.WithNamespace(namespace)
-	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
-	setup := serverSetup{
-		kubeClient:             kubeClient,
-		kubeInformerFactory:    kubeInformerFactory,
-	}
-	stopCh := make(chan struct{})
-	defer close(stopCh)
-	listers := startInformers(setup, stopCh)
-	functionLookup := NewFunctionLookup(namespace, listers.EndpointsInformer.Lister())
+	endpoints, err := kubeClient.CoreV1().Endpoints(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
+	log.Printf("IP address %s", endpoints.Subsets[0].Addresses[0].IP)
+	urlstr := endpoints.Subsets[0].Addresses[0].IP
+	// defaultResync := time.Minute * 5
+	// kubeInformerOpt := kubeinformers.WithNamespace(namespace)
+	// kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
+	// setup := serverSetup{
+	// 	kubeClient:             kubeClient,
+	// 	kubeInformerFactory:    kubeInformerFactory,
+	// }
+	// stopCh := make(chan struct{})
+	// defer close(stopCh)
+	// listers := startInformers(setup, stopCh)
+	// functionLookup := NewFunctionLookup(namespace, listers.EndpointsInformer.Lister())
 	
-	functionAddr, resolveErr := functionLookup.Resolve(functionName)
-	if resolveErr != nil {
-	// TODO: Should record the 404/not found error in Prometheus.
-	log.Printf("resolver error: no endpoints for %s: %s\n", functionName, resolveErr.Error())
-	}
+	// functionAddr, resolveErr := functionLookup.Resolve(functionName)
+	// if resolveErr != nil {
+	// // TODO: Should record the 404/not found error in Prometheus.
+	// log.Printf("resolver error: no endpoints for %s: %s\n", functionName, resolveErr.Error())
+	// }
 	
-	log.Printf("FunctionName: %s, ResolveAddr: %s", functionName, functionAddr)
+	// log.Printf("FunctionName: %s, ResolveAddr: %s", functionName, functionAddr)
 	//urlStr := fmt.Sprintf("%s",&functionAddr)
 	
-	urlstr := functionAddr.String()
+	//urlstr := functionAddr.String()
 	resp, err = http.Get(urlstr)
 	if err != nil {
 		log.Fatalf("HTTP error: %s", err.Error())
 	}
 	return resp, err
+
 
 	//services, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
 	// if err != nil {
