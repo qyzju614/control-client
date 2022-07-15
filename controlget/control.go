@@ -1,7 +1,7 @@
 package controlget
 
 import (
-	//"net/http"
+	"net/http"
 	"fmt"
 	"log"
 	//"path/filepath"
@@ -11,7 +11,7 @@ import (
 	//"os"
 	//"context"
 	//"time"
-	"net/url"
+	//"net/url"
 	"strings"
 	"sync"
 	"math/rand"
@@ -249,7 +249,7 @@ type FunctionLookup struct {
 															
 }
 
-func (l *FunctionLookup) Resolve(name string) (url.URL, error) {
+func (l *FunctionLookup) Resolve(name string) (resp *http.Response, err error) {
 	functionName := name
 	namespace := l.DefaultNamespace
 
@@ -267,16 +267,16 @@ func (l *FunctionLookup) Resolve(name string) (url.URL, error) {
 
 	svc, err := nsEndpointLister.Get(functionName)
 	if err != nil {
-		return url.URL{}, fmt.Errorf("error listing \"%s.%s\": %s", functionName, namespace, err.Error())
+		log.Printf("error listing \"%s.%s\": %s", functionName, namespace, err.Error())
 	}
 
 	if len(svc.Subsets) == 0 {
-		return url.URL{}, fmt.Errorf("no subsets available for \"%s.%s\"", functionName, namespace)
+		log.Printf("no subsets available for \"%s.%s\"", functionName, namespace)
 	}
 
 	all := len(svc.Subsets[0].Addresses)
 	if len(svc.Subsets[0].Addresses) == 0 {
-		return url.URL{}, fmt.Errorf("no addresses in subset for \"%s.%s\"", functionName, namespace)
+		log.Printf("no addresses in subset for \"%s.%s\"", functionName, namespace)
 	}
 
 	target := rand.Intn(all)
@@ -285,14 +285,22 @@ func (l *FunctionLookup) Resolve(name string) (url.URL, error) {
 
 	urlStr := fmt.Sprintf("http://%s:%d", serviceIP, watchdogPort)
 
-	urlRes, err := url.Parse(urlStr)
-	if err != nil {
-		return url.URL{}, err
-	}
+	// urlRes, err := url.Parse(urlStr)
+	// if err != nil {
+	// 	return url.URL{}, err
+	// }
 
 	log.Printf("[Call k8s/proxy.go Resolve] name: %s, url %s", name, urlStr)
 
-	return *urlRes, nil
+	urlresp, err := http.Get(urlStr)
+	//defer resp.Body.Close()
+	if err != nil {
+	log.Printf(err.Error())
+	}
+	// body, err := ioutil.ReadAll(resp.Body)
+	// fmt.Printf("response is :%s \n", string(body))
+
+	return urlresp, err
 }
 
 func (f *FunctionLookup) GetLister(ns string) corelister.EndpointsNamespaceLister {
