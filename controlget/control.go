@@ -1,9 +1,10 @@
 package controlget
 
 import (
-	"net/http"
 	"fmt"
 	"log"
+	"net/http"
+
 	//"path/filepath"
 	//"flag"
 	//"io/ioutil"
@@ -12,11 +13,10 @@ import (
 	//"context"
 	//"time"
 	//"net/url"
+	"math/rand"
 	"strings"
 	"sync"
-	"math/rand"
 
-	 
 	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//"k8s.io/client-go/kubernetes"
 	//"k8s.io/client-go/tools/clientcmd"
@@ -24,213 +24,13 @@ import (
 	//v1apps "k8s.io/client-go/informers/apps/v1"
 	//v1core "k8s.io/client-go/informers/core/v1"
 	//"k8s.io/client-go/tools/cache"
+	kubeovnlist "github.com/kubeovn/kube-ovn/pkg/client/listers/kubeovn/v1"
 	corelister "k8s.io/client-go/listers/core/v1"
-
-
-
 )
 
-const ( 
+const (
 	watchdogPort = 8080
 )
-// var kubeconfig string
-// var masterURL string
-//change to your apiGateway address
-// var apiGateway = "http://172.16.252.163:31112/function/"
-// var servicesilices []string
-// var endpointsilices []string
-
-// type serverSetup struct {
-// 	kubeClient             *kubernetes.Clientset
-// 	kubeInformerFactory    kubeinformers.SharedInformerFactory
-// }
-// type customInformers struct {
-// 	EndpointsInformer  v1core.EndpointsInformer
-// 	DeploymentInformer v1apps.DeploymentInformer
-				
-// }
-// get kubeconfig
-// func init() {
-// 	flag.StringVar(&kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-// 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-// }
-
-// func Cacheclient(){
-
-// }
-
-// func Control(functionName string) (resp *http.Response, err error) {
-
-// 	log.Printf("function name is: %s \n", functionName)
-
-// 	// readConfig := config.ReadConfig{}
-// 	// osEnv := providertypes.OsEnv{}
-// 	// config, err := readConfig.Read(osEnv)
-
-	
-
-// 	// config.DefaultFunctionNamespace = namespace
-// 	// var config string
-// 	// var URL string
-
-// 	// flag.StringVar(&config, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-// 	// flag.StringVar(&URL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-	
-// 	// if home := homeDir(); home != "" {
-// 	// 	kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-// 	// } else {
-// 	// 	//kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-// 	// 	flag.StringVar(kubeconfig, "kubeconfig", "","Path to a kubeconfig. Only required if out-of-cluster.")
-// 	// 	log.Printf("kubeconfig do not exist")
-// 	// }
-// 	flag.Parse()
-	
-// 	clientCmdConfig, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
-// 	if err != nil {
-// 		log.Fatalf("Error building kubeconfig: %s", err.Error())
-// 	}
-
-// 	kubeClient, err := kubernetes.NewForConfig(clientCmdConfig)
-// 	if err != nil {
-// 		log.Fatalf("Error building Kubernetes clientset: %s", err.Error())
-// 	}
-// 	endpoints, err := kubeClient.CoreV1().Endpoints(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
-// 	log.Printf("IP address %s", endpoints.Subsets[0].Addresses[0].IP)
-// 	urlstr := fmt.Sprintf("http://%s:%d", endpoints.Subsets[0].Addresses[0].IP, watchdogPort)
-// 	// defaultResync := time.Minute * 5
-// 	// kubeInformerOpt := kubeinformers.WithNamespace(namespace)
-// 	// kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
-// 	// setup := serverSetup{
-// 	// 	kubeClient:             kubeClient,
-// 	// 	kubeInformerFactory:    kubeInformerFactory,
-// 	// }
-// 	// stopCh := make(chan struct{})
-// 	// defer close(stopCh)
-// 	// listers := startInformers(setup, stopCh)
-// 	// functionLookup := NewFunctionLookup(namespace, listers.EndpointsInformer.Lister())
-	
-// 	// functionAddr, resolveErr := functionLookup.Resolve(functionName)
-// 	// if resolveErr != nil {
-// 	// // TODO: Should record the 404/not found error in Prometheus.
-// 	// log.Printf("resolver error: no endpoints for %s: %s\n", functionName, resolveErr.Error())
-// 	// }
-	
-// 	// log.Printf("FunctionName: %s, ResolveAddr: %s", functionName, functionAddr)
-// 	//urlStr := fmt.Sprintf("%s",&functionAddr)
-	
-// 	//urlstr := functionAddr.String()
-// 	resp, err = http.Get(urlstr)
-// 	if err != nil {
-// 		log.Fatalf("HTTP error: %s", err.Error())
-// 	}
-// 	return resp, err
-
-
-// 	//services, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
-// 	// if err != nil {
-// 	// 	fmt.Println(err)
-// 	// 	return
-// 	// }
-// 	//servicesilices = append(servicesilices, services.Spec.ClusterIP)
-
-// 	// services, err := kubeClient.CoreV1().Services(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
-// 	//pods, err := kubeClient.CoreV1().Pods(namespace).Get(context.TODO(),functionName,metav1.GetOptions{})
-// 	// if err != nil {
-// 	// 	fmt.Println(err)
-// 	// 	return
-// 	// }
-// 	//endpointsilices = append(endpointsilices, pods.Status.PodIP)
-
-	
-// 	// for _, s := range services.Items {
-// 	// 	if strings.Contains(s.Name, functionName) {
-// 	// 		fmt.Printf("Name: %v Cluster IP: %v\n", s.Name, s.Spec.ClusterIP)
-// 	// 		servicesilices = append(servicesilices, s.Spec.ClusterIP)
-// 	// 	}
-
-// 	// }
-// 	// pods, err := kubeClient.CoreV1().Pods(config.DefaultFunctionNamespace).List(context.TODO(), metav1.ListOptions{})
-// 	// if err != nil {
-// 	// 	fmt.Println(err)
-// 	// 	return
-// 	// }
-
-// 	// for _, v := range pods.Items {
-// 	// 	if strings.Contains(v.Name, functionName) {
-// 	// 		fmt.Printf("Name: %v IP: %v\n", v.Name, v.Status.PodIP)
-// 	// 		endpointsilices = append(endpointsilices, v.Status.PodIP)
-// 	// 	}
-
-// 	// }
-// 	// if len(endpointsilices) == 0 {
-// 	// 	resp, err := http.Get(apiGateway + functionName)
-// 	// 	if err != nil {
-// 	// 		fmt.Printf("err")
-// 	// 	}
-// 	// 	body, err := ioutil.ReadAll(resp.Body)
-// 	// 	defer resp.Body.Close()
-// 	// 	fmt.Printf("response is :%s", string(body))
-// 	// 	return resp, err
-// 	// } else {
-// 	// 	urlStr := fmt.Sprintf("http://%s:%d", pods.Status.PodIP, watchdogPort)
-// 	// 	resp, err := http.Get(urlStr)
-// 	// 		//defer resp.Body.Close()
-// 	// 	if err != nil {
-// 	// 		log.Fatalf("HTTP error: %s", err.Error())
-// 	// 	}
-// 	// 	return resp, err
-// 		// for i := range servicesilices {
-// 		// 	endpointIP := servicesilices[i]
-// 		// 	urlStr := fmt.Sprintf("http://%s:%d", endpointIP, watchdogPort)
-// 		// 	resp, err := http.Get(urlStr)
-// 		// 	//defer resp.Body.Close()
-// 		// 	if err != nil {
-// 		// 		//fmt.Printf(err.Error())
-// 		// 		log.Fatalf("HTTP error: %s", err.Error())
-// 		// 	}
-// 		// 	// body, err := ioutil.ReadAll(resp.Body)
-// 		// 	// fmt.Printf("response is :%s \n", string(body))
-// 		// 	//respslices = append(respslices, resp)
-// 		// 	return resp, err
-			
-// 		// }
-		
-
-// 	// }
-// 	// if len(endpointsilices) == 0 {
-// 	// 	resp, err :=http.Get(apiGateway + functionaddress)
-
-// 	// 	} else {
-// 	// 	for i := range endpointsilices {
-// 	// 		respc, errc := http.Get(endpointsilices[i])
-// 	// 		//defer resp.Body.Close()
-// 	// 		//body, err := ioutil.ReadAll(respc.Body)
-
-// 	// 	}
-// }
-
-// func startInformers(setup serverSetup, stopCh <-chan struct{}) customInformers {
-// 	kubeInformerFactory := setup.kubeInformerFactory
-	
-
-// 	deployments := kubeInformerFactory.Apps().V1().Deployments()
-// 	go deployments.Informer().Run(stopCh)
-// 	if ok := cache.WaitForNamedCacheSync("deployments", stopCh, deployments.Informer().HasSynced); !ok {
-// 		log.Fatalf("failed to wait for cache to sync")
-// 	}
-
-// 	endpoints := kubeInformerFactory.Core().V1().Endpoints()
-// 	go endpoints.Informer().Run(stopCh)
-// 	if ok := cache.WaitForNamedCacheSync("endpoints", stopCh, endpoints.Informer().HasSynced); !ok {
-// 		log.Fatalf("failed to wait for cache to sync")
-// 	}
-
-
-// 	return customInformers{
-// 		EndpointsInformer:  endpoints,
-// 		DeploymentInformer: deployments,
-// 	}
-// }
 
 func NewFunctionLookup(ns string, lister corelister.EndpointsLister) *FunctionLookup {
 	return &FunctionLookup{
@@ -245,8 +45,37 @@ type FunctionLookup struct {
 	DefaultNamespace string
 	EndpointLister   corelister.EndpointsLister
 	Listers          map[string]corelister.EndpointsNamespaceLister
-	lock sync.RWMutex
-															
+	lock             sync.RWMutex
+}
+
+type VipFunctionLookup struct {
+	VipLister kubeovnlist.VipLister
+}
+
+func NewVipLookup(ns string, lister kubeovnlist.VipLister) *VipFunctionLookup {
+	return &VipFunctionLookup{
+		VipLister: lister,
+	}
+}
+
+func (l *VipFunctionLookup) ResolveVip(name string) (resp *http.Response, err error) {
+	vipname := "vip-" + name
+	fakeip, err := l.VipLister.Get(vipname)
+	if err != nil {
+		log.Printf("failed to get static vip:, %v", err)
+	}
+
+	log.Printf("svc %s fakeip is %s", fakeip.Name, fakeip.Spec.V4ip)
+	urlStr := fmt.Sprintf("http://%s:%d", fakeip.Spec.V4ip, watchdogPort)
+
+	log.Printf("[ResolveVip] name: %s, url %s", name, urlStr)
+
+	urlresp, err := http.Get(urlStr)
+	if err != nil {
+		log.Printf(err.Error())
+	}
+	return urlresp, err
+
 }
 
 func (l *FunctionLookup) Resolve(name string) (resp *http.Response, err error) {
@@ -295,7 +124,7 @@ func (l *FunctionLookup) Resolve(name string) (resp *http.Response, err error) {
 	urlresp, err := http.Get(urlStr)
 	//defer resp.Body.Close()
 	if err != nil {
-	log.Printf(err.Error())
+		log.Printf(err.Error())
 	}
 	// body, err := ioutil.ReadAll(resp.Body)
 	// fmt.Printf("response is :%s \n", string(body))
